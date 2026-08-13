@@ -7,6 +7,7 @@ description: Implemented changes that still need manual verification
 
 The current release needs manual verification in these areas:
 
+- Supabase auth (optional): with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` set and `supabase/schema.sql` applied, unauthenticated visits should redirect to `/login`; after email sign-in/sign-up, canvas projects should sync per user (RLS). Switching accounts in the same browser must not upload the previous user's local projects. Without those env vars, the app stays local-only and does not require login.
 - Canvas navigation: the bottom toolbar should switch between Select and Move modes and reflect the active mode with its icon; Select should draw a clearly spaced dashed range whose dash length, gap, and stroke width remain visually constant at every zoom level, while Move should pan from either the background or a node. Clicking blank canvas space in either mode should deselect the current node and close its top toolbar and lower prompt panel. Holding Control or Space should temporarily invert the active tool without changing the toolbar mode: Select becomes Move, and Move becomes range selection. After clicking any canvas-page button, pressing Space should only invert the tool and must not trigger that button again. Middle-button panning and additive node selection with Shift/Cmd should continue to work, while Space remains available inside text inputs and editable content.
 - English and Simplified Chinese switching across navigation, settings, titles, descriptions, Ant Design components, and persisted preferences.
 - Global Dropdown, Menu, Select, Cascader, and TreeSelect popup backgrounds, hover states, and selected states in both light and dark themes.
@@ -25,6 +26,8 @@ The current release needs manual verification in these areas:
 - Prompt Center layout, source synchronization, search, asset insertion, prompt detail dialogs, and compact split-layout prompt pickers in the image and video workbenches.
 - Workbench history image cleanup: after generating content in the image or video workbench, deleting an asset, canvas image node, canvas content, or canvas project must not remove thumbnails, results, or references from generation history; deleting a generation record should still remove its dedicated local files.
 - Settings import/export, Volcengine Ark protocol handling, and WebDAV-related configuration.
+- Volcengine Ark video duration: the video settings panel should offer a 30s option with a custom input max of 30; after selecting it, the status bar should show 30s and the submitted task duration should be 30.
+- New video defaults: a newly created empty video node should use the current default video model (Volcengine Ark seedance-2.5), 480p, adaptive ratio, and 30s.
 - Local storage settings: the Settings page should provide a Local storage tab that reads only the `infinite-canvas` database and shows IndexedDB usage, total site usage, browser quota, quota percentage, and per-object-store record counts and content size; refreshing after local data changes should update the figures without blocking the rest of the page.
 
 The Chinese version contains the complete item-by-item acceptance checklist.

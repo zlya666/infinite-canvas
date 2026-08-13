@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { nanoid } from "nanoid";
 
+import { ARK_API_KEY, ARK_BASE_URL as ENV_ARK_BASE_URL } from "@/constant/env";
 import i18n from "@/i18n";
 
 export type ApiCallFormat = "openai" | "gemini" | "ark";
@@ -41,6 +42,7 @@ export type AiConfig = {
     audioInstructions: string;
     videoSeconds: string;
     vquality: string;
+    videoSize: string;
     videoGenerateAudio: string;
     videoWatermark: string;
     systemPrompt: string;
@@ -67,49 +69,120 @@ const CHANNEL_MODEL_SEPARATOR = "::";
 const OPENAI_BASE_URL = "https://api.openai.com";
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com";
 const ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3";
+const DEV_ARK_CHANNEL_ID = "volcengine-ark";
+const DEV_ARK_DEFAULT_BASE_URL = "https://ark.ap-southeast.bytepluses.com/api/v3";
+/** 火山方舟推理接入点；请求时 model 字段使用 ep-xxx。 */
+const DEV_ARK_MODELS: ChannelModel[] = [
+    { name: "ep-20260728150036-rlt9l", capability: "image" }, // Seedream-5.0-pro
+    { name: "ep-20260728150848-q9sv4", capability: "video" }, // seedance-2.0-mini
+    { name: "ep-20260728150816-rqlc5", capability: "video" }, // seedance-2.0-fast
+    { name: "ep-20260728150659-j8mjd", capability: "video" }, // seedance-2.0
+    { name: "ep-20260807142738-x5wml", capability: "video" }, // seedance-2.5
+];
+const DEV_ARK_IMAGE_MODEL = "ep-20260728150036-rlt9l";
+const DEV_ARK_VIDEO_MODEL = "ep-20260807142738-x5wml";
 
-export const defaultConfig: AiConfig = {
-    channelMode: "local",
-    baseUrl: OPENAI_BASE_URL,
-    apiKey: "",
-    apiFormat: "openai",
-    channels: [
-        {
-            id: "default",
-            name: i18n.t("config.channels.defaultName"),
+function createDevArkChannel(): ModelChannel {
+    return {
+        id: DEV_ARK_CHANNEL_ID,
+        name: "火山方舟",
+        baseUrl: ENV_ARK_BASE_URL || DEV_ARK_DEFAULT_BASE_URL,
+        apiKey: ARK_API_KEY,
+        apiFormat: "ark",
+        models: DEV_ARK_MODELS.map((model) => ({ ...model })),
+    };
+}
+
+function applyDevArkChannel(channels: ModelChannel[]): ModelChannel[] {
+    if (!ARK_API_KEY) return channels;
+    const ark = createDevArkChannel();
+    const index = channels.findIndex((channel) => channel.id === DEV_ARK_CHANNEL_ID);
+    if (index < 0) return [ark, ...channels];
+    return channels.map((channel, i) => (i === index ? ark : channel));
+}
+
+function buildDefaultConfig(): AiConfig {
+    if (!ARK_API_KEY) {
+        return {
+            channelMode: "local",
             baseUrl: OPENAI_BASE_URL,
             apiKey: "",
             apiFormat: "openai",
-            models: [
-                { name: "gpt-image-2", capability: "image" },
-                { name: "grok-imagine-video", capability: "video" },
-                { name: "gpt-5.5", capability: "text" },
-                { name: "gpt-4o-mini-tts", capability: "audio" },
+            channels: [
+                {
+                    id: "default",
+                    name: i18n.t("config.channels.defaultName"),
+                    baseUrl: OPENAI_BASE_URL,
+                    apiKey: "",
+                    apiFormat: "openai",
+                    models: [
+                        { name: "gpt-image-2", capability: "image" },
+                        { name: "grok-imagine-video", capability: "video" },
+                        { name: "gpt-5.5", capability: "text" },
+                        { name: "gpt-4o-mini-tts", capability: "audio" },
+                    ],
+                },
             ],
-        },
-    ],
-    model: "default::gpt-image-2",
-    imageModel: "default::gpt-image-2",
-    videoModel: "default::grok-imagine-video",
-    textModel: "default::gpt-5.5",
-    audioModel: "default::gpt-4o-mini-tts",
-    audioVoice: "alloy",
-    audioFormat: "mp3",
-    audioSpeed: "1",
-    audioInstructions: "",
-    videoSeconds: "6",
-    vquality: "720",
-    videoGenerateAudio: "true",
-    videoWatermark: "false",
-    systemPrompt: "",
-    reasoningEffort: "auto",
-    models: ["default::gpt-image-2", "default::grok-imagine-video", "default::gpt-5.5", "default::gpt-4o-mini-tts"],
-    quality: "auto",
-    size: "1:1",
-    background: "",
-    count: "1",
-    canvasImageCount: "3",
-};
+            model: "default::gpt-image-2",
+            imageModel: "default::gpt-image-2",
+            videoModel: "default::grok-imagine-video",
+            textModel: "default::gpt-5.5",
+            audioModel: "default::gpt-4o-mini-tts",
+            audioVoice: "alloy",
+            audioFormat: "mp3",
+            audioSpeed: "1",
+            audioInstructions: "",
+            videoSeconds: "30",
+            vquality: "480p",
+            videoSize: "adaptive",
+            videoGenerateAudio: "true",
+            videoWatermark: "false",
+            systemPrompt: "",
+            reasoningEffort: "auto",
+            models: ["default::gpt-image-2", "default::grok-imagine-video", "default::gpt-5.5", "default::gpt-4o-mini-tts"],
+            quality: "auto",
+            size: "1:1",
+            background: "",
+            count: "1",
+            canvasImageCount: "3",
+        };
+    }
+
+    const ark = createDevArkChannel();
+    const imageModel = encodeChannelModel(DEV_ARK_CHANNEL_ID, DEV_ARK_IMAGE_MODEL);
+    const videoModel = encodeChannelModel(DEV_ARK_CHANNEL_ID, DEV_ARK_VIDEO_MODEL);
+    return {
+        channelMode: "local",
+        baseUrl: ark.baseUrl,
+        apiKey: ark.apiKey,
+        apiFormat: "ark",
+        channels: [ark],
+        model: imageModel,
+        imageModel,
+        videoModel,
+        textModel: "",
+        audioModel: "",
+        audioVoice: "alloy",
+        audioFormat: "mp3",
+        audioSpeed: "1",
+        audioInstructions: "",
+        videoSeconds: "30",
+        vquality: "480p",
+        videoSize: "adaptive",
+        videoGenerateAudio: "true",
+        videoWatermark: "false",
+        systemPrompt: "",
+        reasoningEffort: "auto",
+        models: modelOptionsFromChannels([ark]),
+        quality: "auto",
+        size: "1:1",
+        background: "",
+        count: "1",
+        canvasImageCount: "3",
+    };
+}
+
+export const defaultConfig: AiConfig = buildDefaultConfig();
 
 export const defaultWebdavSyncConfig: WebdavSyncConfig = {
     url: "",
@@ -222,8 +295,10 @@ export const useConfigStore = create<ConfigStore>()(
                 const persistedWebdav = (persistedState.webdav || {}) as Partial<WebdavSyncConfig>;
                 const config = { ...defaultConfig, ...persistedConfig };
                 if (!Array.isArray(persistedConfig.channels)) config.channels = [];
-                const channels = normalizeChannels(config);
+                const channels = applyDevArkChannel(normalizeChannels(config));
                 const models = modelOptionsFromChannels(channels);
+                const imageModel = normalizeModelOptionValue(config.imageModel || config.model, channels) || (ARK_API_KEY ? encodeChannelModel(DEV_ARK_CHANNEL_ID, DEV_ARK_IMAGE_MODEL) : "");
+                const videoModel = ARK_API_KEY ? encodeChannelModel(DEV_ARK_CHANNEL_ID, DEV_ARK_VIDEO_MODEL) : normalizeModelOptionValue(config.videoModel, channels);
                 return {
                     ...current,
                     webdav: { ...defaultWebdavSyncConfig, ...persistedWebdav },
@@ -233,8 +308,9 @@ export const useConfigStore = create<ConfigStore>()(
                         apiFormat: normalizeApiFormat(config.apiFormat),
                         channels,
                         models,
-                        imageModel: normalizeModelOptionValue(config.imageModel || config.model, channels),
-                        videoModel: normalizeModelOptionValue(config.videoModel, channels),
+                        model: imageModel || normalizeModelOptionValue(config.model, channels),
+                        imageModel,
+                        videoModel,
                         textModel: normalizeModelOptionValue(config.textModel || config.model, channels),
                         audioModel: normalizeModelOptionValue(config.audioModel || defaultConfig.audioModel, channels),
                         audioVoice: config.audioVoice || defaultConfig.audioVoice,
@@ -242,8 +318,9 @@ export const useConfigStore = create<ConfigStore>()(
                         audioSpeed: config.audioSpeed || defaultConfig.audioSpeed,
                         audioInstructions: config.audioInstructions || "",
                         reasoningEffort: config.reasoningEffort || "auto",
-                        videoSeconds: config.videoSeconds || "6",
-                        vquality: config.vquality || "720",
+                        videoSeconds: defaultConfig.videoSeconds,
+                        vquality: defaultConfig.vquality,
+                        videoSize: defaultConfig.videoSize,
                         videoGenerateAudio: config.videoGenerateAudio || "true",
                         videoWatermark: config.videoWatermark || "false",
                         canvasImageCount: config.canvasImageCount || "3",

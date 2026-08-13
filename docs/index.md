@@ -18,6 +18,7 @@
 - [Local Development](/docs/development/local-development)
 - [Canvas Data Structure](/docs/development/canvas-data-structure)
 - [How the Local Codex Connection Works](/docs/development/local-codex-canvas)
+- Supabase 小团队登录与画布同步：见仓库根目录 `supabase/README.md`
 
 ## Business
 

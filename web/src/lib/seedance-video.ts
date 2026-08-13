@@ -29,7 +29,7 @@ export const seedanceRatioOptions = [
     { value: "adaptive" },
 ] as const;
 
-export const seedanceDurationOptions = [-1, 4, 5, 6, 8, 10, 12, 15] as const;
+export const seedanceDurationOptions = [-1, 4, 5, 6, 8, 10, 12, 15, 30] as const;
 
 const seedancePixels = {
     "480p": {
@@ -65,20 +65,26 @@ export function isSeedanceVideoConfig(config: AiConfig | Pick<AiConfig, "model" 
 
 export function normalizeSeedanceResolution(value: string) {
     const normalized = normalizeResolutionToken(value);
-    return seedanceResolutionOptions.some((item) => item.value === normalized) ? normalized : "720p";
+    return seedanceResolutionOptions.some((item) => item.value === normalized) ? normalized : "480p";
 }
 
 export function normalizeResolutionToken(value: string) {
     if (value === "low") return "480p";
     if (value === "auto" || value === "high" || value === "medium") return "720p";
-    const resolution = String(value || "").replace(/p$/i, "") || "720";
+    const raw = String(value || "").trim();
+    if (!raw) return "480p";
+    const resolution = raw.replace(/p$/i, "") || "480";
     return `${resolution}p`;
+}
+
+export function resolveVideoRatio(config: Pick<AiConfig, "size" | "videoSize">) {
+    return (config.videoSize || config.size || "adaptive").trim() || "adaptive";
 }
 
 export function normalizeSeedanceDuration(value: string) {
     if (String(value).trim() === "-1") return -1;
     const seconds = Math.floor(Number(value) || 5);
-    return Math.max(4, Math.min(15, seconds));
+    return Math.max(4, Math.min(30, seconds));
 }
 
 export function normalizeSeedanceRatio(value: string) {

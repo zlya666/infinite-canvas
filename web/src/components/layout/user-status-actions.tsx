@@ -1,7 +1,8 @@
 import type { CSSProperties } from "react";
-import { Tooltip } from "antd";
-import { BookOpen, Keyboard, Puzzle, Settings2 } from "lucide-react";
+import { App, Tooltip } from "antd";
+import { BookOpen, Keyboard, LogOut, Puzzle, Settings2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { GitHubLink } from "@/components/layout/github-link";
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { canvasThemes } from "@/lib/canvas-theme";
 import { useConfigStore } from "@/stores/use-config-store";
 import { useThemeStore } from "@/stores/use-theme-store";
+import { useUserStore } from "@/stores/use-user-store";
 
 type UserStatusActionsProps = {
     showConfig?: boolean;
@@ -22,9 +24,14 @@ type UserStatusActionsProps = {
 
 export function UserStatusActions({ showConfig = true, variant = "default", onOpenShortcuts, onOpenPlugins }: UserStatusActionsProps) {
     const { i18n, t } = useTranslation();
+    const { message } = App.useApp();
+    const navigate = useNavigate();
     const theme = useThemeStore((state) => state.theme);
     const setTheme = useThemeStore((state) => state.setTheme);
     const openConfigDialog = useConfigStore((state) => state.openConfigDialog);
+    const authEnabled = useUserStore((state) => state.authEnabled);
+    const user = useUserStore((state) => state.user);
+    const signOut = useUserStore((state) => state.signOut);
     const canvasTheme = canvasThemes[theme];
     const naturalIconClass = "inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-stone-600 transition-colors hover:bg-black/5 hover:text-stone-950 dark:text-stone-300 dark:hover:bg-white/10 dark:hover:text-white [&_svg]:size-4";
     const iconStyle: CSSProperties | undefined = variant === "canvas" ? { color: canvasTheme.node.text } : undefined;
@@ -35,8 +42,23 @@ export function UserStatusActions({ showConfig = true, variant = "default", onOp
     const nextLocale = locale === "zh-CN" ? "en-US" : "zh-CN";
     const languageLabel = t("topNav.switchLanguage", { language: t(nextLocale === "zh-CN" ? "locale.zhCN" : "locale.enUS") });
 
+    const onSignOut = async () => {
+        try {
+            await signOut();
+            message.success(t("auth.logoutSuccess"));
+            navigate("/login", { replace: true });
+        } catch (error) {
+            message.error(error instanceof Error ? error.message : t("auth.logoutFailed"));
+        }
+    };
+
     return (
         <div className="inline-flex shrink-0 items-center gap-1">
+            {authEnabled && user ? (
+                <Tooltip title={user.email || user.displayName} mouseEnterDelay={0.2}>
+                    <span className="mr-1 hidden max-w-28 truncate text-xs text-stone-500 sm:inline dark:text-stone-400">{user.displayName}</span>
+                </Tooltip>
+            ) : null}
             {onOpenPlugins ? (
                 <button type="button" className={naturalIconClass} style={iconStyle} onClick={onOpenPlugins} aria-label={t("topNav.plugins")} title={t("topNav.plugins")}>
                     <Puzzle className="size-4" />
@@ -62,6 +84,13 @@ export function UserStatusActions({ showConfig = true, variant = "default", onOp
                 <button type="button" className={naturalIconClass} style={iconStyle} onClick={onOpenShortcuts} aria-label={t("topNav.shortcuts")} title={t("topNav.shortcuts")}>
                     <Keyboard className="size-4" />
                 </button>
+            ) : null}
+            {authEnabled && user ? (
+                <Tooltip title={t("auth.logout")} mouseEnterDelay={0.2}>
+                    <button type="button" className={naturalIconClass} style={iconStyle} onClick={() => void onSignOut()} aria-label={t("auth.logout")}>
+                        <LogOut className="size-4" />
+                    </button>
+                </Tooltip>
             ) : null}
         </div>
     );

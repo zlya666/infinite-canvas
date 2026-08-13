@@ -98,7 +98,7 @@ async function createPluginVideoTask(config: AiConfig, model: string, script: st
                 seconds: normalizeVideoSeconds(config.videoSeconds),
                 size: normalizeVideoSize(config.size),
                 resolution: normalizeVideoResolution(config.vquality),
-                ratio: config.size,
+                ratio: config.videoSize || config.size,
                 generateAudio: boolConfig(config.videoGenerateAudio, true),
                 watermark: boolConfig(config.videoWatermark, false),
             },
@@ -181,7 +181,7 @@ async function createSeedanceTask(config: AiConfig, model: string, prompt: strin
     const payload = {
         model: modelOptionName(model),
         content,
-        ratio: normalizeSeedanceRatio(config.size),
+        ratio: normalizeSeedanceRatio(config.videoSize || config.size),
         resolution: normalizeSeedanceResolution(config.vquality),
         duration: normalizeSeedanceDuration(config.videoSeconds),
         generate_audio: boolConfig(config.videoGenerateAudio, true),

@@ -1,10 +1,20 @@
 import { getNodeSpec, NODE_DEFAULT_SIZE } from "@/constant/canvas";
 import { nodeSizeFromRatio } from "@/lib/canvas/canvas-node-size";
-import type { AiConfig } from "@/stores/use-config-store";
+import { defaultConfig, useConfigStore, type AiConfig } from "@/stores/use-config-store";
 import type { UploadedImage } from "@/services/image-storage";
 import type { UploadedFile } from "@/services/file-storage";
 import type { ReferenceImage } from "@/types/image";
 import { CanvasNodeType, type CanvasImageGenerationType, type CanvasNodeData, type CanvasNodeMetadata, type CanvasNodeTypeId, type Position } from "@/types/canvas";
+
+export function defaultVideoGenerationMetadata(config?: AiConfig): CanvasNodeMetadata {
+    const source = config || useConfigStore.getState().config;
+    return {
+        model: source.videoModel || defaultConfig.videoModel,
+        vquality: defaultConfig.vquality,
+        size: defaultConfig.videoSize,
+        seconds: defaultConfig.videoSeconds,
+    };
+}
 
 export function createCanvasNode(type: CanvasNodeTypeId, position: Position, metadata?: CanvasNodeMetadata): CanvasNodeData {
     const spec = getNodeSpec(type);
@@ -20,7 +30,7 @@ export function createCanvasNode(type: CanvasNodeTypeId, position: Position, met
         },
         width: spec.width,
         height: spec.height,
-        metadata: { ...spec.metadata, ...metadata },
+        metadata: { ...spec.metadata, ...(type === CanvasNodeType.Video ? defaultVideoGenerationMetadata() : {}), ...metadata },
     };
 }
 
