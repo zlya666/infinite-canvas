@@ -1,0 +1,33 @@
+---
+title: Backend API Spec
+description: REST contract for auth, media, canvases, and assets. The browser IndexedDB store is no longer the source of truth for uploaded files.
+---
+
+# Backend API Spec
+
+This is the English summary of the backend contract. The complete field-level spec for the backend team is in the [Chinese version](/zh-CN/docs/development/backend-api).
+
+The app is a Vite + React frontend. Canvas JSON, image/video/audio blobs, My Assets, and generation history currently live in IndexedDB (`infinite-canvas`). Image/video generation still goes from the browser to Volcengine Ark (or other channels) and is **not** proxied by this API.
+
+Product rules:
+
+1. The right-hand Agent panel is off.
+2. Uploads and media reads go through this API. The browser may cache object URLs only.
+3. Keep merging upstream `main`. This product removes the right-hand Agent UI; drop it again if a merge brings it back.
+
+
+Base URL: `https://{api-host}/api/v1`  
+Auth: `Authorization: Bearer {access_token}`
+
+## Priority
+
+1. Auth + `POST /media` + `GET /media/{id}` + `POST /media/batch`
+2. `GET/PUT/DELETE /projects` (full `CanvasProject` JSON; persist `storageKey`, never `blob:` URLs)
+3. Assets CRUD
+4. Generation logs (phase 2)
+
+Do **not** implement Agent/Codex, AI key proxying, or WebDAV.
+
+Media `id` is the frontend `storageKey` (`image_{uuid}`, `video_{uuid}`, `audio_{uuid}`). `url` should be a short-lived HTTPS URL.
+
+See the Chinese doc for request/response bodies, conflict handling (`409` on stale `updatedAt`), size limits, and merge-from-main notes.

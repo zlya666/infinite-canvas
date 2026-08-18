@@ -5,6 +5,7 @@
   "pages": [
     "local-development",
     "canvas-data-structure",
+    "backend-api",
     "local-codex-canvas"
   ]
 }

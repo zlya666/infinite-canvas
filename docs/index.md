@@ -17,6 +17,7 @@
 
 - [Local Development](/docs/development/local-development)
 - [Canvas Data Structure](/docs/development/canvas-data-structure)
+- [Backend API Spec](/docs/development/backend-api)
 - [How the Local Codex Connection Works](/docs/development/local-codex-canvas)
 - Supabase 小团队登录与画布同步：见仓库根目录 `supabase/README.md`
 
@@ -38,5 +39,5 @@
 
 ## Notes
 
-- Canvas projects and My Assets are primarily stored in the browser. WebDAV can be configured for cross-device synchronization.
+- Canvas projects and My Assets are still stored in the browser until the self-hosted backend API is wired up. The target contract is in the backend API spec.
 - The AI API key is stored in the browser, which sends requests directly to OpenAI-compatible endpoints.
