@@ -1,9 +1,11 @@
 import localforage from "localforage";
 import { nanoid } from "nanoid";
 
+import { APP_STORAGE_DB } from "@/constant/app-id";
+
 export type UploadedFile = { url: string; storageKey: string; bytes: number; mimeType: string; width?: number; height?: number; durationMs?: number };
 
-const store = localforage.createInstance({ name: "infinite-canvas", storeName: "media_files" });
+const store = localforage.createInstance({ name: APP_STORAGE_DB, storeName: "media_files" });
 const objectUrls = new Map<string, string>();
 
 export async function uploadMediaFile(input: string | Blob, prefix = "file"): Promise<UploadedFile> {

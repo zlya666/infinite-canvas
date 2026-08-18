@@ -2,11 +2,13 @@ import { useEffect, useRef } from "react";
 import { App } from "antd";
 import { useTranslation } from "react-i18next";
 
+import { APP_STORAGE_DB, appStorageKey } from "@/constant/app-id";
+
 import { deleteCloudProjects, fetchCloudProjects, mergeProjectsByUpdatedAt, upsertCloudProjects } from "@/services/supabase/projects";
 import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
 import { useUserStore } from "@/stores/use-user-store";
 
-const CLOUD_OWNER_KEY = "infinite-canvas:cloud_owner";
+const CLOUD_OWNER_KEY = appStorageKey("cloud_owner");
 
 /**
  * 登录后把本地画布与云端合并，并在本地变更防抖后回写云端。

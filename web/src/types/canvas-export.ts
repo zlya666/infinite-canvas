@@ -1,7 +1,8 @@
 import type { CanvasProject } from "@/stores/canvas/use-canvas-store";
+import { APP_ID } from "@/constant/app-id";
 
 export type CanvasExportFile = {
-    app: "infinite-canvas";
+    app: typeof APP_ID;
     version: 3;
     exportedAt: string;
     projects: CanvasProjectExportItem[];

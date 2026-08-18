@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { appStorageKey } from "@/constant/app-id";
 import { localForageStorage } from "@/lib/localforage-storage";
 
 export type InstalledPlugin = {
@@ -38,7 +39,7 @@ export const usePluginStore = create<PluginStore>()(
             remove: (id) => set((state) => ({ plugins: state.plugins.filter((item) => item.id !== id) })),
         }),
         {
-            name: "infinite-canvas:plugin_store",
+            name: appStorageKey("plugin_store"),
             storage: createJSONStorage(() => localForageStorage),
         },
     ),

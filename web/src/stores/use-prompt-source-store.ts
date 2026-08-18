@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { appStorageKey } from "@/constant/app-id";
 import { DEFAULT_PROMPT_SOURCES, createPromptSource, type PromptSource } from "@/services/api/prompt-source-presets";
 
 export type PromptSourceSchedule = {
@@ -8,7 +9,7 @@ export type PromptSourceSchedule = {
     lastFetchedAt: string;
 };
 
-const PROMPT_SOURCE_STORE_KEY = "infinite-canvas:prompt_source_store_v2";
+const PROMPT_SOURCE_STORE_KEY = appStorageKey("prompt_source_store_v2");
 
 const defaultSchedule: PromptSourceSchedule = {
     intervalMinutes: 30,

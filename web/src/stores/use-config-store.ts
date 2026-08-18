@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { nanoid } from "nanoid";
 
 import { ARK_API_KEY, ARK_BASE_URL as ENV_ARK_BASE_URL } from "@/constant/env";
+import { APP_ID, appStorageKey } from "@/constant/app-id";
 import i18n from "@/i18n";
 
 export type ApiCallFormat = "openai" | "gemini" | "ark";
@@ -64,7 +65,7 @@ export type WebdavSyncConfig = {
 };
 export type ConfigTabKey = "channels" | "preferences" | "prompt-sources" | "webdav" | "local-storage";
 
-export const CONFIG_STORE_KEY = "infinite-canvas:ai_config_store";
+export const CONFIG_STORE_KEY = appStorageKey("ai_config_store");
 const CHANNEL_MODEL_SEPARATOR = "::";
 const OPENAI_BASE_URL = "https://api.openai.com";
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com";
@@ -188,7 +189,7 @@ export const defaultWebdavSyncConfig: WebdavSyncConfig = {
     url: "",
     username: "",
     password: "",
-    directory: "infinite-canvas",
+    directory: APP_ID,
     lastSyncedAt: "",
 };
 

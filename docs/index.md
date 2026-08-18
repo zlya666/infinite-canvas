@@ -1,4 +1,4 @@
-# Infinite Canvas Documentation Index
+# WhatsLove Creators Documentation Index
 
 ## Overview
 

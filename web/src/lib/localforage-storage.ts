@@ -1,8 +1,10 @@
 import localforage from "localforage";
 import type { StateStorage } from "zustand/middleware";
 
+import { APP_STORAGE_DB } from "@/constant/app-id";
+
 localforage.config({
-    name: "infinite-canvas",
+    name: APP_STORAGE_DB,
     storeName: "app_state",
 });
 

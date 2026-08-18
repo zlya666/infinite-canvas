@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { appStorageKey } from "@/constant/app-id";
+
 export type ThemeName = "light" | "dark";
 
 type ThemeStore = {
@@ -14,6 +16,6 @@ export const useThemeStore = create<ThemeStore>()(
             theme: "dark",
             setTheme: (theme) => set({ theme }),
         }),
-        { name: "infinite-canvas:theme_store" },
+        { name: appStorageKey("theme_store") },
     ),
 );

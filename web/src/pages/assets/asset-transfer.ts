@@ -1,12 +1,13 @@
 import { saveAs } from "file-saver";
 
+import { APP_ID } from "@/constant/app-id";
 import { createZip, readZip } from "@/lib/zip";
 import { getMediaBlob, setMediaBlob } from "@/services/file-storage";
 import { getImageBlob, setImageBlob } from "@/services/image-storage";
 import type { Asset } from "@/stores/use-asset-store";
 
 type AssetExportFile = {
-    app: "infinite-canvas";
+    app: typeof APP_ID;
     version: 1;
     exportedAt: string;
     assets: Asset[];
@@ -37,7 +38,7 @@ export async function exportAssets(assets: Asset[], filename: string) {
         }),
     );
 
-    const data: AssetExportFile = { app: "infinite-canvas", version: 1, exportedAt: new Date().toISOString(), assets, files };
+    const data: AssetExportFile = { app: APP_ID, version: 1, exportedAt: new Date().toISOString(), assets, files };
     const zip = await createZip([{ name: "assets.json", data: JSON.stringify(data, null, 2) }, ...zipFiles]);
     saveAs(zip, filename);
 }

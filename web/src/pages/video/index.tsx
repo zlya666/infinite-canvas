@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import { saveAs } from "file-saver";
 import { useTranslation } from "react-i18next";
 
+import { APP_STORAGE_DB, appStorageKey } from "@/constant/app-id";
 import { AssetPickerModal, type InsertAssetPayload } from "@/components/canvas/asset-picker-modal";
 import { ModelPicker } from "@/components/model-picker";
 import { PromptSelectDialog } from "@/components/prompts/prompt-select-dialog";
@@ -66,8 +67,8 @@ type GenerationLogConfig = Pick<AiConfig, "model" | "videoModel" | "size" | "vid
 
 type UpdateAiConfig = <K extends keyof AiConfig>(key: K, value: AiConfig[K]) => void;
 
-const LOG_STORE_KEY = "infinite-canvas:video_generation_logs";
-const logStore = localforage.createInstance({ name: "infinite-canvas", storeName: "video_generation_logs" });
+const LOG_STORE_KEY = appStorageKey("video_generation_logs");
+const logStore = localforage.createInstance({ name: APP_STORAGE_DB, storeName: "video_generation_logs" });
 
 export default function VideoPage() {
     const { message } = App.useApp();

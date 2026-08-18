@@ -1,12 +1,13 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
+import { appStorageKey } from "@/constant/app-id";
 import enUS from "@/i18n/locales/en-US";
 import zhCN from "@/i18n/locales/zh-CN";
 
 export type AppLocale = "zh-CN" | "en-US";
 
-const LOCALE_STORAGE_KEY = "infinite-canvas:locale";
+const LOCALE_STORAGE_KEY = appStorageKey("locale");
 
 i18n.use(initReactI18next).init({
     resources: {
